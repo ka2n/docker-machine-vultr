@@ -655,7 +655,12 @@ write_files:
     permissions: "0755"
     owner: root
     content: |
-      #!/bin/sh
+	  #!/bin/sh
+	  test -e /swapfile1 || sh -c "dd if=/dev/zero of=/swapfile1 bs=1M count=1024 && chmod 600 /swapfile1 && mkswap /swapfile1 && swapon /swapfile1"
+	  mkdir -p /home/rancher/data/tnt && chown rancher:rancher /home/rancher/data/tnt
+	  mkdir -p /home/rancher/data/redis && chown rancher:rancher /home/rancher/data/redis
+	  mkdir -p /home/rancher/data/postgres && chown rancher:rancher /home/rancher/data/postgres
+
       mount | grep /dev/vda >/dev/null
       RETVAL=$?
       if [ $RETVAL -eq 0 ]; then
@@ -665,6 +670,10 @@ write_files:
       logger -t start.sh "Prepared /dev/vda for use as Rancher state disk. Rebooting."
       sudo reboot
 rancher:
+  repositories:
+    strahlungsfrei.url: 'http://www.strahlungsfrei.de/os-services/'
+  docker:
+    engine: docker-17.10.0-ce
   network:
     interfaces:
       eth0:
